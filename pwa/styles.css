@@ -308,11 +308,22 @@ h2 {
 
 .record-list {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 12px;
+  margin: 0 -14px;
+  padding: 0 14px 4px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.record-list::-webkit-scrollbar {
+  display: none;
 }
 
 .record-card {
+  flex: 0 0 87%;
+  scroll-snap-align: center;
   padding: 14px;
 }
 
