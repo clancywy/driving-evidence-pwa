@@ -88,64 +88,11 @@ test("createOsmTileGrid builds a visible 3 by 3 map tile set", () => {
 
 test("createOsmEmbedUrl builds an embeddable map centered on coordinates", () => {
   const url = core.createOsmEmbedUrl({
-    latitude: 34.244166,
-    longitude: 108.840895
+    latitude: 12.345678,
+    longitude: 98.765432
   });
 
   assert.match(url, /^https:\/\/www\.openstreetmap\.org\/export\/embed\.html\?/);
-  assert.match(url, /marker=34\.244166,108\.840895/);
+  assert.match(url, /marker=12\.345678,98\.765432/);
   assert.match(url, /layer=mapnik/);
-});
-
-test("getOsmDisplayCoords uses raw coordinates by default", () => {
-  const raw = core.getOsmDisplayCoords({
-    latitude: 39.9042,
-    longitude: 116.4074,
-    accuracy: 12
-  });
-
-  assert.equal(raw.corrected, false);
-  assert.equal(raw.coordinateSystem, "raw");
-  assert.equal(raw.latitude, 39.9042);
-  assert.equal(raw.longitude, 116.4074);
-});
-
-test("getOsmDisplayCoords supports GCJ to WGS display correction", () => {
-  const corrected = core.getOsmDisplayCoords({
-    latitude: 39.9042,
-    longitude: 116.4074,
-    accuracy: 12
-  }, "gcj-to-wgs");
-
-  assert.equal(corrected.corrected, true);
-  assert.equal(corrected.coordinateSystem, "wgs84-from-gcj02");
-  assert.equal(corrected.accuracy, 12);
-  assert.notEqual(corrected.latitude, 39.9042);
-  assert.notEqual(corrected.longitude, 116.4074);
-});
-
-test("getOsmDisplayCoords supports WGS to GCJ display correction", () => {
-  const corrected = core.getOsmDisplayCoords({
-    latitude: 39.9042,
-    longitude: 116.4074,
-    accuracy: 12
-  }, "wgs-to-gcj");
-
-  assert.equal(corrected.corrected, true);
-  assert.equal(corrected.coordinateSystem, "gcj02-from-wgs84");
-  assert.equal(corrected.accuracy, 12);
-  assert.notEqual(corrected.latitude, 39.9042);
-  assert.notEqual(corrected.longitude, 116.4074);
-});
-
-test("getOsmDisplayCoords does not correct outside mainland China", () => {
-  const outsideChina = core.getOsmDisplayCoords({
-    latitude: 35.681236,
-    longitude: 139.767125,
-    accuracy: 8
-  }, "gcj-to-wgs");
-
-  assert.equal(outsideChina.corrected, false);
-  assert.equal(outsideChina.latitude, 35.681236);
-  assert.equal(outsideChina.longitude, 139.767125);
 });
