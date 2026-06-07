@@ -9,9 +9,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>行驶留证</title>
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="stylesheet" href="./styles.css?v=5">
-  <script src="./app-core.js?v=5" defer></script>
-  <script src="./app.js?v=5" defer></script>
+  <link rel="stylesheet" href="./styles.css?v=7">
+  <script src="./app-core.js?v=7" defer></script>
+  <script src="./app.js?v=7" defer></script>
 </head>
 <body>
   <main class="app-shell">
@@ -37,6 +37,11 @@
           <span id="gpsStatus" class="status-pill status-waiting">定位中</span>
         </div>
         <p id="gpsDetail" class="detail-text">正在请求定位权限</p>
+        <div class="map-mode" aria-label="地图坐标模式">
+          <button class="is-active" type="button" data-map-mode="raw">原始</button>
+          <button type="button" data-map-mode="gcj-to-wgs">GCJ→WGS</button>
+          <button type="button" data-map-mode="wgs-to-gcj">WGS→GCJ</button>
+        </div>
         <div id="currentMap" class="map-frame">
           <div id="currentTileMap" class="tile-map" aria-label="当前位置地图"></div>
           <div class="map-pin" aria-hidden="true"></div>

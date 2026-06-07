@@ -154,10 +154,10 @@
     };
   }
 
-  function getOsmDisplayCoords(coords) {
+  function getOsmDisplayCoords(coords, mode = "raw") {
     if (!coords) return null;
 
-    if (!isInsideMainlandChina(coords)) {
+    if (mode === "raw" || !isInsideMainlandChina(coords)) {
       return {
         ...coords,
         corrected: false,
@@ -165,13 +165,16 @@
       };
     }
 
-    const corrected = gcj02ToWgs84(coords);
+    const corrected = mode === "wgs-to-gcj"
+      ? wgs84ToGcj02(coords)
+      : gcj02ToWgs84(coords);
+
     return {
       ...coords,
       latitude: Math.round(corrected.latitude * 1000000) / 1000000,
       longitude: Math.round(corrected.longitude * 1000000) / 1000000,
       corrected: true,
-      coordinateSystem: "wgs84-from-gcj02"
+      coordinateSystem: mode === "wgs-to-gcj" ? "gcj02-from-wgs84" : "wgs84-from-gcj02"
     };
   }
 

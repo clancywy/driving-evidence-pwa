@@ -86,23 +86,53 @@ test("createOsmTileGrid builds a visible 3 by 3 map tile set", () => {
   assert.match(grid.tiles[4].url, /^https:\/\/tile\.openstreetmap\.org\/16\/\d+\/\d+\.png$/);
 });
 
-test("getOsmDisplayCoords corrects mainland China coordinates for OSM display", () => {
-  const corrected = core.getOsmDisplayCoords({
+test("getOsmDisplayCoords uses raw coordinates by default", () => {
+  const raw = core.getOsmDisplayCoords({
     latitude: 39.9042,
     longitude: 116.4074,
     accuracy: 12
   });
 
+  assert.equal(raw.corrected, false);
+  assert.equal(raw.coordinateSystem, "raw");
+  assert.equal(raw.latitude, 39.9042);
+  assert.equal(raw.longitude, 116.4074);
+});
+
+test("getOsmDisplayCoords supports GCJ to WGS display correction", () => {
+  const corrected = core.getOsmDisplayCoords({
+    latitude: 39.9042,
+    longitude: 116.4074,
+    accuracy: 12
+  }, "gcj-to-wgs");
+
   assert.equal(corrected.corrected, true);
+  assert.equal(corrected.coordinateSystem, "wgs84-from-gcj02");
   assert.equal(corrected.accuracy, 12);
   assert.notEqual(corrected.latitude, 39.9042);
   assert.notEqual(corrected.longitude, 116.4074);
+});
 
+test("getOsmDisplayCoords supports WGS to GCJ display correction", () => {
+  const corrected = core.getOsmDisplayCoords({
+    latitude: 39.9042,
+    longitude: 116.4074,
+    accuracy: 12
+  }, "wgs-to-gcj");
+
+  assert.equal(corrected.corrected, true);
+  assert.equal(corrected.coordinateSystem, "gcj02-from-wgs84");
+  assert.equal(corrected.accuracy, 12);
+  assert.notEqual(corrected.latitude, 39.9042);
+  assert.notEqual(corrected.longitude, 116.4074);
+});
+
+test("getOsmDisplayCoords does not correct outside mainland China", () => {
   const outsideChina = core.getOsmDisplayCoords({
     latitude: 35.681236,
     longitude: 139.767125,
     accuracy: 8
-  });
+  }, "gcj-to-wgs");
 
   assert.equal(outsideChina.corrected, false);
   assert.equal(outsideChina.latitude, 35.681236);

@@ -1,11 +1,13 @@
 (function initApp() {
   const core = window.TrafficReportCore;
   const storageKey = "traffic-report-records-v1";
+  const mapModeKey = "traffic-report-map-mode-v1";
   const state = {
     currentCoords: null,
     locationState: "waiting",
     records: [],
-    activeScreen: "driving"
+    activeScreen: "driving",
+    mapMode: "raw"
   };
 
   const elements = {};
@@ -36,11 +38,18 @@
     ].forEach((id) => {
       elements[id] = byId(id);
     });
+    elements.mapModeButtons = Array.from(document.querySelectorAll("[data-map-mode]"));
   }
 
   function loadRecords() {
     const saved = safeGetItem(storageKey);
     state.records = core.trimRecords(core.parseStoredRecords(saved));
+    state.mapMode = getStoredMapMode();
+  }
+
+  function getStoredMapMode() {
+    const mode = safeGetItem(mapModeKey);
+    return ["raw", "gcj-to-wgs", "wgs-to-gcj"].includes(mode) ? mode : "raw";
   }
 
   function safeGetItem(key) {
@@ -121,9 +130,7 @@
           longitude: roundCoord(position.coords.longitude),
           accuracy: Math.round(position.coords.accuracy)
         };
-        const displayCoords = core.getOsmDisplayCoords(state.currentCoords);
-        const correctionText = displayCoords && displayCoords.corrected ? " · 地图已校正" : "";
-        setLocationStatus("available", `精度约 ${state.currentCoords.accuracy} 米${correctionText}`);
+        setLocationStatus("available", getLocationDetailText(state.currentCoords));
         renderCurrentMap();
       },
       (error) => {
@@ -147,6 +154,19 @@
 
   function createAppleMapsUrl(record) {
     return `https://maps.apple.com/?ll=${record.latitude},${record.longitude}&q=${encodeURIComponent("保存位置")}`;
+  }
+
+  function getLocationDetailText(coords) {
+    const displayCoords = core.getOsmDisplayCoords(coords, state.mapMode);
+    const modeLabel = getMapModeLabel(state.mapMode);
+    const correctionText = displayCoords && displayCoords.corrected ? ` · ${modeLabel}` : " · 原始坐标";
+    return `精度约 ${coords.accuracy} 米${correctionText}`;
+  }
+
+  function getMapModeLabel(mode) {
+    if (mode === "gcj-to-wgs") return "GCJ→WGS";
+    if (mode === "wgs-to-gcj") return "WGS→GCJ";
+    return "原始坐标";
   }
 
   function renderCurrentMap() {
@@ -252,7 +272,7 @@
 
   function renderTileMap(target, coords, label) {
     target.textContent = "";
-    const displayCoords = core.getOsmDisplayCoords(coords);
+    const displayCoords = core.getOsmDisplayCoords(coords, state.mapMode);
     const grid = core.createOsmTileGrid({
       latitude: displayCoords.latitude,
       longitude: displayCoords.longitude,
@@ -266,6 +286,25 @@
       image.loading = "lazy";
       image.referrerPolicy = "no-referrer";
       target.appendChild(image);
+    });
+  }
+
+  function setMapMode(mode) {
+    state.mapMode = mode;
+    safeSetItem(mapModeKey, mode);
+    renderMapModeButtons();
+    if (state.currentCoords && state.locationState === "available") {
+      setLocationStatus("available", getLocationDetailText(state.currentCoords));
+    }
+    renderCurrentMap();
+    renderRecords();
+  }
+
+  function renderMapModeButtons() {
+    elements.mapModeButtons.forEach((button) => {
+      const isActive = button.dataset.mapMode === state.mapMode;
+      button.classList.toggle("is-active", isActive);
+      button.setAttribute("aria-pressed", String(isActive));
     });
   }
 
@@ -323,12 +362,16 @@
     elements.drivingTab.addEventListener("click", () => setScreen("driving"));
     elements.processTab.addEventListener("click", () => setScreen("process"));
     elements.quickSaveButton.addEventListener("click", handleQuickSave);
+    elements.mapModeButtons.forEach((button) => {
+      button.addEventListener("click", () => setMapMode(button.dataset.mapMode));
+    });
   }
 
   function boot() {
     cacheElements();
     loadRecords();
     bindEvents();
+    renderMapModeButtons();
     updateClock();
     renderRecords();
     renderCurrentMap();
