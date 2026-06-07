@@ -72,34 +72,21 @@
   }
 
   function longitudeToTileX(longitude, zoom) {
-    return Math.floor(longitudeToTileFloat(longitude, zoom));
-  }
-
-  function longitudeToTileFloat(longitude, zoom) {
     const scale = 2 ** zoom;
-    return ((longitude + 180) / 360) * scale;
+    return Math.floor(((longitude + 180) / 360) * scale);
   }
 
   function latitudeToTileY(latitude, zoom) {
-    return Math.floor(latitudeToTileFloat(latitude, zoom));
-  }
-
-  function latitudeToTileFloat(latitude, zoom) {
     const scale = 2 ** zoom;
     const radians = latitude * Math.PI / 180;
     const value = (1 - Math.log(Math.tan(radians) + 1 / Math.cos(radians)) / Math.PI) / 2;
-    return value * scale;
+    return Math.floor(value * scale);
   }
 
   function createOsmTileGrid({ latitude, longitude, zoom = 16, radius = 1 }) {
-    const tileSize = 256;
     const maxIndex = (2 ** zoom) - 1;
-    const tileX = longitudeToTileFloat(longitude, zoom);
-    const tileY = latitudeToTileFloat(latitude, zoom);
-    const centerX = Math.max(0, Math.min(maxIndex, Math.floor(tileX)));
-    const centerY = Math.max(0, Math.min(maxIndex, Math.floor(tileY)));
-    const offsetX = Math.round((tileX - centerX) * tileSize);
-    const offsetY = Math.round((tileY - centerY) * tileSize);
+    const centerX = Math.max(0, Math.min(maxIndex, longitudeToTileX(longitude, zoom)));
+    const centerY = Math.max(0, Math.min(maxIndex, latitudeToTileY(latitude, zoom)));
     const tiles = [];
 
     for (let y = centerY - radius; y <= centerY + radius; y += 1) {
@@ -115,7 +102,7 @@
       }
     }
 
-    return { centerX, centerY, zoom, tileSize, radius, offsetX, offsetY, tiles };
+    return { centerX, centerY, zoom, tiles };
   }
 
   function isInsideMainlandChina({ latitude, longitude }) {

@@ -258,16 +258,6 @@
       longitude: displayCoords.longitude,
       zoom: 16
     });
-    const side = (grid.radius * 2 + 1) * grid.tileSize;
-    const anchorX = grid.radius * grid.tileSize + grid.offsetX;
-    const anchorY = grid.radius * grid.tileSize + grid.offsetY;
-
-    target.style.width = `${side}px`;
-    target.style.height = `${side}px`;
-    target.style.left = `calc(50% - ${anchorX}px)`;
-    target.style.top = `calc(50% - ${anchorY}px)`;
-    target.style.gridTemplateColumns = `repeat(${grid.radius * 2 + 1}, ${grid.tileSize}px)`;
-    target.style.gridTemplateRows = `repeat(${grid.radius * 2 + 1}, ${grid.tileSize}px)`;
 
     grid.tiles.forEach((tile) => {
       const image = document.createElement("img");

@@ -83,9 +83,6 @@ test("createOsmTileGrid builds a visible 3 by 3 map tile set", () => {
   assert.equal(grid.tiles.length, 9);
   assert.equal(grid.tiles[4].x, grid.centerX);
   assert.equal(grid.tiles[4].y, grid.centerY);
-  assert.equal(grid.tileSize, 256);
-  assert.ok(grid.offsetX >= 0 && grid.offsetX < 256);
-  assert.ok(grid.offsetY >= 0 && grid.offsetY < 256);
   assert.match(grid.tiles[4].url, /^https:\/\/tile\.openstreetmap\.org\/16\/\d+\/\d+\.png$/);
 });
 
