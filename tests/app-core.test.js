@@ -71,3 +71,17 @@ test("trimRecords keeps the newest records first", () => {
   assert.equal(trimmed[0].displayTime, "09:42:00");
   assert.equal(trimmed[1].displayTime, "09:41:00");
 });
+
+test("createOsmTileGrid builds a visible 3 by 3 map tile set", () => {
+  const grid = core.createOsmTileGrid({
+    latitude: 39.9042,
+    longitude: 116.4074,
+    zoom: 16
+  });
+
+  assert.equal(grid.zoom, 16);
+  assert.equal(grid.tiles.length, 9);
+  assert.equal(grid.tiles[4].x, grid.centerX);
+  assert.equal(grid.tiles[4].y, grid.centerY);
+  assert.match(grid.tiles[4].url, /^https:\/\/tile\.openstreetmap\.org\/16\/\d+\/\d+\.png$/);
+});

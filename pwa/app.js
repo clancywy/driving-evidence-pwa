@@ -26,7 +26,7 @@
       "gpsStatus",
       "gpsDetail",
       "currentMap",
-      "currentMapFrame",
+      "currentTileMap",
       "currentMapPlaceholder",
       "quickSaveButton",
       "lastSavedText",
@@ -143,15 +143,6 @@
     return Math.round(value * 1000000) / 1000000;
   }
 
-  function createOsmUrl(latitude, longitude) {
-    const delta = 0.004;
-    const left = longitude - delta;
-    const right = longitude + delta;
-    const top = latitude + delta;
-    const bottom = latitude - delta;
-    return `https://www.openstreetmap.org/export/embed.html?bbox=${left},${bottom},${right},${top}&layer=mapnik&marker=${latitude},${longitude}`;
-  }
-
   function createAppleMapsUrl(record) {
     return `https://maps.apple.com/?ll=${record.latitude},${record.longitude}&q=${encodeURIComponent("保存位置")}`;
   }
@@ -159,7 +150,7 @@
   function renderCurrentMap() {
     if (!state.currentCoords) {
       elements.currentMap.classList.remove("has-map");
-      elements.currentMapFrame.removeAttribute("src");
+      elements.currentTileMap.textContent = "";
       elements.currentMapPlaceholder.textContent = state.locationState === "waiting"
         ? "等待定位"
         : "仅记录时间";
@@ -167,10 +158,7 @@
     }
 
     elements.currentMap.classList.add("has-map");
-    elements.currentMapFrame.src = createOsmUrl(
-      state.currentCoords.latitude,
-      state.currentCoords.longitude
-    );
+    renderTileMap(elements.currentTileMap, state.currentCoords, "当前位置");
   }
 
   function handleQuickSave() {
@@ -240,11 +228,14 @@
     }
 
     holder.className = "mini-map";
-    const iframe = document.createElement("iframe");
-    iframe.title = "保存位置地图";
-    iframe.loading = "lazy";
-    iframe.referrerPolicy = "no-referrer-when-downgrade";
-    iframe.src = createOsmUrl(record.latitude, record.longitude);
+    const tileMap = document.createElement("div");
+    tileMap.className = "tile-map";
+    tileMap.setAttribute("aria-label", "保存位置地图");
+    renderTileMap(tileMap, record, "保存位置");
+
+    const pin = document.createElement("div");
+    pin.className = "map-pin";
+    pin.setAttribute("aria-hidden", "true");
 
     const link = document.createElement("a");
     link.className = "map-link";
@@ -253,8 +244,26 @@
     link.rel = "noreferrer";
     link.textContent = "在地图中打开";
 
-    holder.append(iframe, link);
+    holder.append(tileMap, pin, link);
     return holder;
+  }
+
+  function renderTileMap(target, coords, label) {
+    target.textContent = "";
+    const grid = core.createOsmTileGrid({
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+      zoom: 16
+    });
+
+    grid.tiles.forEach((tile) => {
+      const image = document.createElement("img");
+      image.src = tile.url;
+      image.alt = label;
+      image.loading = "lazy";
+      image.referrerPolicy = "no-referrer";
+      target.appendChild(image);
+    });
   }
 
   function createDetailForm(record) {

@@ -71,13 +71,48 @@
       .slice(0, limit);
   }
 
+  function longitudeToTileX(longitude, zoom) {
+    const scale = 2 ** zoom;
+    return Math.floor(((longitude + 180) / 360) * scale);
+  }
+
+  function latitudeToTileY(latitude, zoom) {
+    const scale = 2 ** zoom;
+    const radians = latitude * Math.PI / 180;
+    const value = (1 - Math.log(Math.tan(radians) + 1 / Math.cos(radians)) / Math.PI) / 2;
+    return Math.floor(value * scale);
+  }
+
+  function createOsmTileGrid({ latitude, longitude, zoom = 16, radius = 1 }) {
+    const maxIndex = (2 ** zoom) - 1;
+    const centerX = Math.max(0, Math.min(maxIndex, longitudeToTileX(longitude, zoom)));
+    const centerY = Math.max(0, Math.min(maxIndex, latitudeToTileY(latitude, zoom)));
+    const tiles = [];
+
+    for (let y = centerY - radius; y <= centerY + radius; y += 1) {
+      for (let x = centerX - radius; x <= centerX + radius; x += 1) {
+        const wrappedX = ((x % (maxIndex + 1)) + (maxIndex + 1)) % (maxIndex + 1);
+        const clampedY = Math.max(0, Math.min(maxIndex, y));
+        tiles.push({
+          x: wrappedX,
+          y: clampedY,
+          zoom,
+          url: `https://tile.openstreetmap.org/${zoom}/${wrappedX}/${clampedY}.png`
+        });
+      }
+    }
+
+    return { centerX, centerY, zoom, tiles };
+  }
+
   const api = {
     formatDate,
     formatTime,
     createIncidentRecord,
     updateRecordDetails,
     parseStoredRecords,
-    trimRecords
+    trimRecords,
+    createOsmTileGrid
   };
 
   if (typeof module !== "undefined" && module.exports) {
