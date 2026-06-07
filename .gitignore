@@ -1,0 +1,11 @@
+# Local media and analysis artifacts are not part of the deployable PWA.
+视频模板/
+
+# Local design/prototype artifacts.
+.superpowers/
+preview/
+
+# Common local files.
+.DS_Store
+Thumbs.db
+node_modules/

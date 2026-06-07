@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="行驶记录">
+  <rect width="1024" height="1024" rx="180" fill="#f2f2f7"/>
+  <rect x="168" y="164" width="688" height="688" rx="92" fill="#ffffff"/>
+  <path d="M512 226c-136 0-246 110-246 246 0 184 246 360 246 360s246-176 246-360c0-136-110-246-246-246z" fill="#ff3b30"/>
+  <circle cx="512" cy="472" r="98" fill="#ffffff"/>
+  <path d="M512 326v146l92 52" fill="none" stroke="#1c1c1e" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

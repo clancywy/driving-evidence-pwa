@@ -1,0 +1,9 @@
+{
+  "name": "driving-evidence-pwa",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/app-core.test.js",
+    "serve": "python -m http.server 8080 --directory pwa"
+  }
+}
