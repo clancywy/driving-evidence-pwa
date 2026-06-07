@@ -28,6 +28,7 @@
       "gpsStatus",
       "gpsDetail",
       "currentMap",
+      "currentMapFrame",
       "currentTileMap",
       "currentMapPlaceholder",
       "quickSaveButton",
@@ -172,6 +173,7 @@
   function renderCurrentMap() {
     if (!state.currentCoords) {
       elements.currentMap.classList.remove("has-map");
+      elements.currentMapFrame.removeAttribute("src");
       elements.currentTileMap.textContent = "";
       elements.currentMapPlaceholder.textContent = state.locationState === "waiting"
         ? "等待定位"
@@ -180,6 +182,7 @@
     }
 
     elements.currentMap.classList.add("has-map");
+    renderEmbedMap(elements.currentMapFrame, state.currentCoords);
     renderTileMap(elements.currentTileMap, state.currentCoords, "当前位置");
   }
 
@@ -250,14 +253,16 @@
     }
 
     holder.className = "mini-map";
+    const iframe = document.createElement("iframe");
+    iframe.title = "保存位置地图";
+    iframe.loading = "lazy";
+    iframe.referrerPolicy = "no-referrer-when-downgrade";
+    renderEmbedMap(iframe, record);
+
     const tileMap = document.createElement("div");
     tileMap.className = "tile-map";
     tileMap.setAttribute("aria-label", "保存位置地图");
     renderTileMap(tileMap, record, "保存位置");
-
-    const pin = document.createElement("div");
-    pin.className = "map-pin";
-    pin.setAttribute("aria-hidden", "true");
 
     const link = document.createElement("a");
     link.className = "map-link";
@@ -266,8 +271,13 @@
     link.rel = "noreferrer";
     link.textContent = "在地图中打开";
 
-    holder.append(tileMap, pin, link);
+    holder.append(tileMap, iframe, link);
     return holder;
+  }
+
+  function renderEmbedMap(target, coords) {
+    const displayCoords = core.getOsmDisplayCoords(coords, state.mapMode);
+    target.src = core.createOsmEmbedUrl(displayCoords);
   }
 
   function renderTileMap(target, coords, label) {

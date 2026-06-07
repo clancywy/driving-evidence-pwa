@@ -9,9 +9,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>行驶留证</title>
   <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="stylesheet" href="./styles.css?v=7">
-  <script src="./app-core.js?v=7" defer></script>
-  <script src="./app.js?v=7" defer></script>
+  <link rel="stylesheet" href="./styles.css?v=8">
+  <script src="./app-core.js?v=8" defer></script>
+  <script src="./app.js?v=8" defer></script>
 </head>
 <body>
   <main class="app-shell">
@@ -43,8 +43,8 @@
           <button type="button" data-map-mode="wgs-to-gcj">WGS→GCJ</button>
         </div>
         <div id="currentMap" class="map-frame">
+          <iframe id="currentMapFrame" title="当前位置地图" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           <div id="currentTileMap" class="tile-map" aria-label="当前位置地图"></div>
-          <div class="map-pin" aria-hidden="true"></div>
           <div id="currentMapPlaceholder" class="map-placeholder">等待定位</div>
         </div>
       </section>

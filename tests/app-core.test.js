@@ -86,6 +86,17 @@ test("createOsmTileGrid builds a visible 3 by 3 map tile set", () => {
   assert.match(grid.tiles[4].url, /^https:\/\/tile\.openstreetmap\.org\/16\/\d+\/\d+\.png$/);
 });
 
+test("createOsmEmbedUrl builds an embeddable map centered on coordinates", () => {
+  const url = core.createOsmEmbedUrl({
+    latitude: 34.244166,
+    longitude: 108.840895
+  });
+
+  assert.match(url, /^https:\/\/www\.openstreetmap\.org\/export\/embed\.html\?/);
+  assert.match(url, /marker=34\.244166,108\.840895/);
+  assert.match(url, /layer=mapnik/);
+});
+
 test("getOsmDisplayCoords uses raw coordinates by default", () => {
   const raw = core.getOsmDisplayCoords({
     latitude: 39.9042,

@@ -105,6 +105,15 @@
     return { centerX, centerY, zoom, tiles };
   }
 
+  function createOsmEmbedUrl({ latitude, longitude }) {
+    const delta = 0.0035;
+    const left = longitude - delta;
+    const right = longitude + delta;
+    const top = latitude + delta;
+    const bottom = latitude - delta;
+    return `https://www.openstreetmap.org/export/embed.html?bbox=${left},${bottom},${right},${top}&layer=mapnik&marker=${latitude},${longitude}`;
+  }
+
   function isInsideMainlandChina({ latitude, longitude }) {
     return longitude >= 72.004
       && longitude <= 137.8347
@@ -186,6 +195,7 @@
     parseStoredRecords,
     trimRecords,
     createOsmTileGrid,
+    createOsmEmbedUrl,
     getOsmDisplayCoords
   };
 
