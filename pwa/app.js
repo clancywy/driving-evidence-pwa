@@ -121,7 +121,9 @@
           longitude: roundCoord(position.coords.longitude),
           accuracy: Math.round(position.coords.accuracy)
         };
-        setLocationStatus("available", `精度约 ${state.currentCoords.accuracy} 米`);
+        const displayCoords = core.getOsmDisplayCoords(state.currentCoords);
+        const correctionText = displayCoords && displayCoords.corrected ? " · 地图已校正" : "";
+        setLocationStatus("available", `精度约 ${state.currentCoords.accuracy} 米${correctionText}`);
         renderCurrentMap();
       },
       (error) => {
@@ -250,9 +252,10 @@
 
   function renderTileMap(target, coords, label) {
     target.textContent = "";
+    const displayCoords = core.getOsmDisplayCoords(coords);
     const grid = core.createOsmTileGrid({
-      latitude: coords.latitude,
-      longitude: coords.longitude,
+      latitude: displayCoords.latitude,
+      longitude: displayCoords.longitude,
       zoom: 16
     });
 

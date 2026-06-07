@@ -85,3 +85,26 @@ test("createOsmTileGrid builds a visible 3 by 3 map tile set", () => {
   assert.equal(grid.tiles[4].y, grid.centerY);
   assert.match(grid.tiles[4].url, /^https:\/\/tile\.openstreetmap\.org\/16\/\d+\/\d+\.png$/);
 });
+
+test("getOsmDisplayCoords corrects mainland China coordinates for OSM display", () => {
+  const corrected = core.getOsmDisplayCoords({
+    latitude: 39.9042,
+    longitude: 116.4074,
+    accuracy: 12
+  });
+
+  assert.equal(corrected.corrected, true);
+  assert.equal(corrected.accuracy, 12);
+  assert.notEqual(corrected.latitude, 39.9042);
+  assert.notEqual(corrected.longitude, 116.4074);
+
+  const outsideChina = core.getOsmDisplayCoords({
+    latitude: 35.681236,
+    longitude: 139.767125,
+    accuracy: 8
+  });
+
+  assert.equal(outsideChina.corrected, false);
+  assert.equal(outsideChina.latitude, 35.681236);
+  assert.equal(outsideChina.longitude, 139.767125);
+});

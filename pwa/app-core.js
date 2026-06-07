@@ -105,6 +105,76 @@
     return { centerX, centerY, zoom, tiles };
   }
 
+  function isInsideMainlandChina({ latitude, longitude }) {
+    return longitude >= 72.004
+      && longitude <= 137.8347
+      && latitude >= 0.8293
+      && latitude <= 55.8271;
+  }
+
+  function transformChinaLatitude(x, y) {
+    let result = -100 + 2 * x + 3 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
+    result += (20 * Math.sin(6 * x * Math.PI) + 20 * Math.sin(2 * x * Math.PI)) * 2 / 3;
+    result += (20 * Math.sin(y * Math.PI) + 40 * Math.sin(y / 3 * Math.PI)) * 2 / 3;
+    result += (160 * Math.sin(y / 12 * Math.PI) + 320 * Math.sin(y * Math.PI / 30)) * 2 / 3;
+    return result;
+  }
+
+  function transformChinaLongitude(x, y) {
+    let result = 300 + x + 2 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
+    result += (20 * Math.sin(6 * x * Math.PI) + 20 * Math.sin(2 * x * Math.PI)) * 2 / 3;
+    result += (20 * Math.sin(x * Math.PI) + 40 * Math.sin(x / 3 * Math.PI)) * 2 / 3;
+    result += (150 * Math.sin(x / 12 * Math.PI) + 300 * Math.sin(x / 30 * Math.PI)) * 2 / 3;
+    return result;
+  }
+
+  function wgs84ToGcj02({ latitude, longitude }) {
+    const earthAxis = 6378245;
+    const eccentricity = 0.006693421622965943;
+    let dLat = transformChinaLatitude(longitude - 105, latitude - 35);
+    let dLon = transformChinaLongitude(longitude - 105, latitude - 35);
+    const radLat = latitude / 180 * Math.PI;
+    let magic = Math.sin(radLat);
+    magic = 1 - eccentricity * magic * magic;
+    const sqrtMagic = Math.sqrt(magic);
+    dLat = dLat * 180 / ((earthAxis * (1 - eccentricity)) / (magic * sqrtMagic) * Math.PI);
+    dLon = dLon * 180 / (earthAxis / sqrtMagic * Math.cos(radLat) * Math.PI);
+
+    return {
+      latitude: latitude + dLat,
+      longitude: longitude + dLon
+    };
+  }
+
+  function gcj02ToWgs84(coords) {
+    const converted = wgs84ToGcj02(coords);
+    return {
+      latitude: coords.latitude * 2 - converted.latitude,
+      longitude: coords.longitude * 2 - converted.longitude
+    };
+  }
+
+  function getOsmDisplayCoords(coords) {
+    if (!coords) return null;
+
+    if (!isInsideMainlandChina(coords)) {
+      return {
+        ...coords,
+        corrected: false,
+        coordinateSystem: "raw"
+      };
+    }
+
+    const corrected = gcj02ToWgs84(coords);
+    return {
+      ...coords,
+      latitude: Math.round(corrected.latitude * 1000000) / 1000000,
+      longitude: Math.round(corrected.longitude * 1000000) / 1000000,
+      corrected: true,
+      coordinateSystem: "wgs84-from-gcj02"
+    };
+  }
+
   const api = {
     formatDate,
     formatTime,
@@ -112,7 +182,8 @@
     updateRecordDetails,
     parseStoredRecords,
     trimRecords,
-    createOsmTileGrid
+    createOsmTileGrid,
+    getOsmDisplayCoords
   };
 
   if (typeof module !== "undefined" && module.exports) {
