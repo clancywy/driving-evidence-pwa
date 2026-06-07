@@ -1,10 +1,10 @@
-const CACHE_NAME = "traffic-report-pwa-v10";
+const CACHE_NAME = "traffic-report-pwa-v11";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=10",
-  "./app.js?v=10",
-  "./app-core.js?v=10",
+  "./styles.css?v=11",
+  "./app.js?v=11",
+  "./app-core.js?v=11",
   "./manifest.webmanifest",
   "./icons/icon.svg"
 ];

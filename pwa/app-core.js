@@ -54,6 +54,10 @@
     });
   }
 
+  function deleteRecord(records, id) {
+    return records.filter((record) => record.id !== id);
+  }
+
   function parseStoredRecords(value) {
     if (!value) return [];
 
@@ -119,6 +123,7 @@
     formatTime,
     createIncidentRecord,
     updateRecordDetails,
+    deleteRecord,
     parseStoredRecords,
     trimRecords,
     createOsmTileGrid,

@@ -52,6 +52,20 @@ test("updateRecordDetails edits only the selected record", () => {
   assert.equal(updated[1].note, "实线变道");
 });
 
+test("deleteRecord removes only the selected record", () => {
+  const records = [
+    core.createIncidentRecord({ now: localDate(2026, 6, 7, 9, 42, 5), coords: null }),
+    core.createIncidentRecord({ now: localDate(2026, 6, 7, 9, 43, 5), coords: null }),
+    core.createIncidentRecord({ now: localDate(2026, 6, 7, 9, 44, 5), coords: null })
+  ];
+
+  const remaining = core.deleteRecord(records, records[1].id);
+
+  assert.equal(remaining.length, 2);
+  assert.equal(remaining[0].id, records[0].id);
+  assert.equal(remaining[1].id, records[2].id);
+});
+
 test("parseStoredRecords returns an empty list for invalid storage values", () => {
   assert.deepEqual(core.parseStoredRecords("not json"), []);
   assert.deepEqual(core.parseStoredRecords(null), []);

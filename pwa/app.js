@@ -134,8 +134,8 @@
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 5000
+        timeout: 5000,
+        maximumAge: 1000
       }
     );
   }
@@ -218,11 +218,30 @@
       : "status-pill status-warning";
     pill.textContent = record.plate || record.note ? "已补充" : "待处理";
 
-    head.append(time, pill);
+    const actions = document.createElement("div");
+    actions.className = "record-actions";
+    actions.append(pill, createDeleteButton(record));
+
+    head.append(time, actions);
     card.appendChild(head);
     card.appendChild(createRecordMap(record));
     card.appendChild(createDetailForm(record));
     return card;
+  }
+
+  function createDeleteButton(record) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "delete-record";
+    button.textContent = "删除";
+    button.addEventListener("click", () => {
+      if (!window.confirm("删除这条记录？")) return;
+
+      state.records = core.deleteRecord(state.records, record.id);
+      persistRecords();
+      renderRecords();
+    });
+    return button;
   }
 
   function createRecordMap(record) {
